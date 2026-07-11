@@ -1,0 +1,1 @@
+Read `AI_CONTEXT.md`, `BUILD_PLAN.md`, `TASKS.md`, and relevant ADRs before making broad changes. Implement one narrowly scoped task at a time. Preserve the modular-monolith structure, add tests, use Flyway migrations, and do not commit secrets.
