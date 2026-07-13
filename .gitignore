@@ -1,0 +1,13 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Backend and frontend have their own .gitignore files for build output.
