@@ -161,9 +161,10 @@ belong to the same project), `name` (required, ≤200 chars), `purpose`,
 `VIRTUAL_MACHINE` \| `BARE_METAL` \| `MANAGED_CLOUD` \| `NAS_NATIVE` \|
 `OTHER`), `storageLocation`, `sensitivity` (required — `PUBLIC` \|
 `INTERNAL` \| `CONFIDENTIAL` \| `HIGHLY_SENSITIVE`), `externallyExposed`
-(boolean), `authenticationMethod`, `backupPolicy` (free text for now —
-Milestone 5 introduces a real `BackupPolicy` entity), `documentationUrl`,
-`repositoryUrl` (valid URLs or null), `notes`.
+(boolean), `authenticationMethod`, `backupPolicy` (free text describing
+how the service is backed up — intentionally not an FK to `BackupPolicy`
+below; see [ADR-0005](decisions/ADR-0005-backup-coverage-rules.md)),
+`documentationUrl`, `repositoryUrl` (valid URLs or null), `notes`.
 
 ## Service dependencies
 
@@ -172,3 +173,50 @@ Milestone 5 introduces a real `BackupPolicy` entity), `documentationUrl`,
 | GET | `/services/{serviceId}/dependencies` | List a service's direct dependencies. |
 | POST | `/services/{serviceId}/dependencies` | Body: `{ "dependsOnServiceId": uuid }`. Rejects self-reference, duplicates, and cycles. |
 | DELETE | `/services/{serviceId}/dependencies/{dependsOnServiceId}` | Remove a dependency edge. |
+
+## Backup policies
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/backup-policies` | List backup policies (the backup matrix) for the project. Query params: `coverageState`, `verificationOverdue` (both optional filters). |
+| POST | `/projects/{projectId}/backup-policies` | Create a backup policy. |
+| GET | `/backup-policies/{backupPolicyId}` | Fetch one backup policy. |
+| PUT | `/backup-policies/{backupPolicyId}` | Replace a backup policy's editable fields. |
+| DELETE | `/backup-policies/{backupPolicyId}` | Delete a backup policy. |
+
+Request body (`BackupPolicyRequest`): `name` (required, ≤200 chars),
+`dataCategory`, `primaryLocation` (required), `localBackupLocation`,
+`offsiteBackupLocation` (optional), `encrypted`, `containsSensitiveData`
+(booleans), `frequency` (required — `CONTINUOUS` \| `HOURLY` \| `DAILY` \|
+`WEEKLY` \| `MONTHLY` \| `MANUAL`), `retention`, `recoveryPointObjective`,
+`recoveryTimeObjective` (free text), `lastVerifiedDate` (ISO date or
+null), `verificationNotes`.
+
+Response (`BackupPolicyResponse`) additionally includes computed
+`coverageState` (`NONE` \| `PARTIAL` \| `FULL`), `missingLocalBackup`,
+`missingOffsiteBackup`, `missingEncryptionForSensitiveOffsite`, and
+`verificationOverdue` — see
+[ADR-0005](decisions/ADR-0005-backup-coverage-rules.md) for the rules.
+
+## Architecture decisions
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/decisions` | List decisions for the project. Query param: `status` (optional filter). |
+| POST | `/projects/{projectId}/decisions` | Create a decision. |
+| GET | `/decisions/{decisionId}` | Fetch one decision, including its related devices and services. |
+| PUT | `/decisions/{decisionId}` | Replace a decision's editable fields and related entities. |
+| DELETE | `/decisions/{decisionId}` | Delete a decision. |
+
+Request body (`ArchitectureDecisionRequest`): `title` (required, ≤200
+chars), `status` (required — `PROPOSED` \| `ACCEPTED` \| `DEPRECATED` \|
+`SUPERSEDED` \| `REJECTED`), `context`, `decision` (required — the
+content fields are plain multiline text, kept markdown-friendly by never
+being fed through a rich-text editor), `alternativesConsidered`,
+`consequences`, `decisionDate` (ISO date or null), `revisitCriteria`,
+`relatedDeviceIds`, `relatedServiceIds` (lists of UUIDs, must belong to
+the same project).
+
+Response (`ArchitectureDecisionResponse`) includes `relatedDevices` and
+`relatedServices` as `{ id, name }` summaries rather than full device/
+service payloads.

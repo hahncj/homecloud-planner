@@ -26,7 +26,7 @@ export function AppShell({ children }: AppShellProps) {
           <Typography variant="h6" component="h1">
             HomeCloud Planner
           </Typography>
-          <Stack direction="row" spacing={2} component="nav">
+          <Stack direction="row" spacing={2} component="nav" sx={{ flexWrap: 'wrap', rowGap: 1 }}>
             <NavLink to="/" end style={navLinkStyle}>
               Dashboard
             </NavLink>
@@ -41,6 +41,12 @@ export function AppShell({ children }: AppShellProps) {
             </NavLink>
             <NavLink to="/services" style={navLinkStyle}>
               Services
+            </NavLink>
+            <NavLink to="/backup" style={navLinkStyle}>
+              Backup
+            </NavLink>
+            <NavLink to="/decisions" style={navLinkStyle}>
+              Decisions
             </NavLink>
           </Stack>
         </Toolbar>

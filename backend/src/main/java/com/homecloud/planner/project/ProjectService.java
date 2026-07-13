@@ -1,7 +1,9 @@
 package com.homecloud.planner.project;
 
+import com.homecloud.planner.backup.BackupPolicyRepository;
 import com.homecloud.planner.common.ConflictException;
 import com.homecloud.planner.common.NotFoundException;
+import com.homecloud.planner.decision.ArchitectureDecisionRepository;
 import com.homecloud.planner.device.DeviceRepository;
 import com.homecloud.planner.phase.PhaseRepository;
 import com.homecloud.planner.roadmap.ProgressSummary;
@@ -28,6 +30,8 @@ public class ProjectService {
     private final PurchaseItemRepository purchaseItemRepository;
     private final DeviceRepository deviceRepository;
     private final ManagedServiceRepository managedServiceRepository;
+    private final BackupPolicyRepository backupPolicyRepository;
+    private final ArchitectureDecisionRepository architectureDecisionRepository;
 
     public ProjectService(
             ProjectRepository projectRepository,
@@ -37,7 +41,9 @@ public class ProjectService {
             TaskProgressCalculator progressCalculator,
             PurchaseItemRepository purchaseItemRepository,
             DeviceRepository deviceRepository,
-            ManagedServiceRepository managedServiceRepository) {
+            ManagedServiceRepository managedServiceRepository,
+            BackupPolicyRepository backupPolicyRepository,
+            ArchitectureDecisionRepository architectureDecisionRepository) {
         this.projectRepository = projectRepository;
         this.phaseRepository = phaseRepository;
         this.taskRepository = taskRepository;
@@ -46,6 +52,8 @@ public class ProjectService {
         this.purchaseItemRepository = purchaseItemRepository;
         this.deviceRepository = deviceRepository;
         this.managedServiceRepository = managedServiceRepository;
+        this.backupPolicyRepository = backupPolicyRepository;
+        this.architectureDecisionRepository = architectureDecisionRepository;
     }
 
     @Transactional(readOnly = true)
@@ -100,6 +108,12 @@ public class ProjectService {
         }
         if (managedServiceRepository.existsByProjectId(projectId)) {
             throw new ConflictException("Project has services; delete them before deleting the project.");
+        }
+        if (backupPolicyRepository.existsByProjectId(projectId)) {
+            throw new ConflictException("Project has backup policies; delete them before deleting the project.");
+        }
+        if (architectureDecisionRepository.existsByProjectId(projectId)) {
+            throw new ConflictException("Project has architecture decisions; delete them before deleting the project.");
         }
         projectRepository.delete(project);
     }

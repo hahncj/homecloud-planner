@@ -171,3 +171,55 @@ Indexes: `service_dependency(service_id)`,
 
 A project cannot be deleted while it has devices or services (same
 restrictive pattern as phases and purchase items).
+
+## V5 — backup and decisions (Milestone 5)
+
+### `backup_policy`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | PK, generated. |
+| `project_id` | `uuid` | FK → `project`, `ON DELETE RESTRICT`. |
+| `name` | `varchar(200)` | Required. |
+| `data_category` | `varchar(200)` | Required; free text (e.g. "Photos", "Service configs"). |
+| `primary_location` | `varchar(200)` | Required. |
+| `local_backup_location`, `offsite_backup_location` | `varchar(200)` | Nullable. |
+| `encrypted` | `boolean` | Required, default `false`. |
+| `contains_sensitive_data` | `boolean` | Required, default `false`. Not in the milestone's literal field list — added because the "missing encryption for sensitive off-site data" warning needs it. See [ADR-0005](decisions/ADR-0005-backup-coverage-rules.md). |
+| `frequency` | `varchar(20)` | `CONTINUOUS` \| `HOURLY` \| `DAILY` \| `WEEKLY` \| `MONTHLY` \| `MANUAL`. |
+| `retention`, `recovery_point_objective`, `recovery_time_objective` | `varchar` | Nullable; free text. |
+| `last_verified_date` | `date` | Nullable. |
+| `verification_notes` | `text` | Nullable. |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+Note: there are no `coverage_state` / `missing_*` / `verification_overdue`
+columns. All of them are computed at read time from the fields above.
+
+Indexes: `backup_policy(project_id)`.
+
+### `architecture_decision`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | PK, generated. |
+| `project_id` | `uuid` | FK → `project`, `ON DELETE RESTRICT`. |
+| `title` | `varchar(200)` | Required. |
+| `status` | `varchar(20)` | `PROPOSED` \| `ACCEPTED` \| `DEPRECATED` \| `SUPERSEDED` \| `REJECTED`. |
+| `context`, `alternatives_considered`, `consequences`, `revisit_criteria` | `text` | Nullable; plain multiline text (markdown-friendly by not being edited through a rich-text control). |
+| `decision` | `text` | Required. |
+| `decision_date` | `date` | Nullable. |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+Indexes: `architecture_decision(project_id)`,
+`architecture_decision(status)`.
+
+### `decision_related_device`, `decision_related_service`
+
+Plain many-to-many join tables (`decision_id` + `device_id` /
+`service_id`, both `ON DELETE CASCADE`, composite PK) — an unordered
+association with no extra attributes, so no dedicated entity class was
+needed (unlike `task_dependency` / `service_dependency`, which carry
+directionality and cycle constraints).
+
+A project cannot be deleted while it has backup policies or architecture
+decisions (same restrictive pattern as the rest of the domain).

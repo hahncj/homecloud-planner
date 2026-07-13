@@ -37,3 +37,10 @@
 - [x] ManagedService entity and API (purpose, description, status, runtime type, host device, storage location, sensitivity, external exposure, authentication method, backup policy text, documentation/repository URLs, notes; CRUD + status/runtime/sensitivity/exposure filtering)
 - [x] Service dependencies (self/duplicate/cycle rejection; deletion blocked while other services depend on it — see [ADR-0004](docs/decisions/ADR-0004-service-dependency-behavior.md))
 - [x] Service catalog UI (catalog grid, routed service detail page, dependency list, runtime/host info, sensitivity and exposure indicators)
+
+## Milestone 5 — Backup matrix and architecture decisions
+
+- [x] BackupPolicy entity and API (name, data category, primary/local/off-site locations, encryption, sensitivity flag, frequency, retention, RPO/RTO, last verified date, verification notes; CRUD + coverage/verification filtering)
+- [x] Backup matrix UI (coverage indicators, missing-local/missing-offsite/missing-encryption/verification-overdue warnings, filters, explicit RAID/snapshot disclaimer — see [ADR-0005](docs/decisions/ADR-0005-backup-coverage-rules.md))
+- [x] ArchitectureDecision entity and API (title, status, context, decision, alternatives considered, consequences, decision date, revisit criteria, related devices/services; CRUD + status filtering)
+- [x] Architecture decisions UI (decision list, routed decision detail page, create/edit forms, markdown-friendly plain-text content fields)
