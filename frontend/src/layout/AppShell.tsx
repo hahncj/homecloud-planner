@@ -48,6 +48,9 @@ export function AppShell({ children }: AppShellProps) {
             <NavLink to="/decisions" style={navLinkStyle}>
               Decisions
             </NavLink>
+            <NavLink to="/settings" style={navLinkStyle}>
+              Settings
+            </NavLink>
           </Stack>
         </Toolbar>
       </AppBar>

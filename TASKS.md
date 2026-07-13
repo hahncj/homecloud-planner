@@ -44,3 +44,11 @@
 - [x] Backup matrix UI (coverage indicators, missing-local/missing-offsite/missing-encryption/verification-overdue warnings, filters, explicit RAID/snapshot disclaimer — see [ADR-0005](docs/decisions/ADR-0005-backup-coverage-rules.md))
 - [x] ArchitectureDecision entity and API (title, status, context, decision, alternatives considered, consequences, decision date, revisit criteria, related devices/services; CRUD + status filtering)
 - [x] Architecture decisions UI (decision list, routed decision detail page, create/edit forms, markdown-friendly plain-text content fields)
+
+## Milestone 6 — Dashboard, seed data, and export
+
+- [x] Dashboard API (progress, current phase, budget figures, blocked/upcoming/recent tasks, purchase/device/service status counts, backup coverage warnings, upcoming warranty expirations, deterministic rule-based recommended actions — see `RecommendedActionEngine`)
+- [x] Dashboard UI (project selector, summary cards, per-section cards for every computed field above)
+- [x] Seed data (repeatable `POST /dev/seed`, content drawn from the sibling personal-cloud-docs repo, only registered under the `dev` Spring profile — see [ADR-0006](docs/decisions/ADR-0006-seed-data-strategy.md))
+- [x] JSON and Markdown export (`GET /export/json`, `GET /export/markdown`, reusing existing response DTOs so credentials can never leak through — see [ADR-0007](docs/decisions/ADR-0007-export-format.md))
+- [x] Settings page with export download controls

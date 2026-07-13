@@ -220,3 +220,48 @@ the same project).
 Response (`ArchitectureDecisionResponse`) includes `relatedDevices` and
 `relatedServices` as `{ id, name }` summaries rather than full device/
 service payloads.
+
+## Dashboard
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/dashboard` | Computed dashboard summary for the project. |
+
+Response (`DashboardSummary`) includes: `overallProgress`, `currentPhase`
+(the earliest phase, in sequence order, that still has incomplete
+eligible tasks — `null` if none); `totalBudget`, `estimatedSpending`,
+`actualSpending`, `remainingBudget`; `blockedTaskCount` plus a capped
+`blockedTasks` list; `upcomingTargetDates` (next 30 days) and
+`recentCompletedTasks` (most recent first), both capped at 10;
+`purchaseStatusCounts`, `deviceLifecycleCounts`, `serviceStatusCounts`
+(counts keyed by status); `backupCoverageWarnings` (counts of each
+warning type from the backup matrix); `upcomingWarrantyExpirations`
+(devices and purchase items combined, next 30 days, capped at 10); and
+`nextRecommendedActions` — a capped list of deterministic, rule-based
+suggestions (never AI-generated) covering: completing a blocking task
+before its dependent, verifying an overdue backup, reviewing an expiring
+warranty, finishing the current phase before later ones, and resolving a
+pending purchase that a ready task in the same phase needs. See
+`RecommendedActionEngine` for the exact rules.
+
+## Export
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/export/json` | Every project's data as a single JSON document. |
+| GET | `/export/markdown` | The same data rendered as a readable Markdown document. |
+
+Both endpoints set `Content-Disposition: attachment` with a fixed
+filename. Neither takes a `projectId` parameter — they always export
+everything. See [ADR-0007](decisions/ADR-0007-export-format.md) for the
+structure and why it reuses the existing response DTOs (which is also
+why credentials can never leak through it — there is nowhere in those
+DTOs for a credential field to be).
+
+## Development-only seed data
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/dev/seed` | Deletes and recreates a representative "Personal Hybrid Cloud" project. Only registered when the `dev` Spring profile is active — this route does not exist otherwise. |
+
+See [ADR-0006](decisions/ADR-0006-seed-data-strategy.md).

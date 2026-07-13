@@ -117,6 +117,37 @@ Stop PostgreSQL when finished:
 docker compose down               # or: make db-down
 ```
 
+## Development-only seed data
+
+The backend can populate a representative "Personal Hybrid Cloud" project
+(phases, tasks with dependencies, shopping items, devices, services,
+backup policies, and architecture decisions, drawn from the sibling
+`personal-cloud-docs` repository) with one request. The seed endpoint
+only exists when the `dev` Spring profile is active, so it is never
+reachable in a default or production deployment — see
+[ADR-0006](docs/decisions/ADR-0006-seed-data-strategy.md).
+
+```bash
+cd backend
+set -a && source ../.env && set +a
+SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
+```
+
+```bash
+curl -X POST http://localhost:8080/api/v1/dev/seed
+```
+
+Calling it again deletes and recreates the same project from scratch, so
+it's safe to re-run at any time during local development.
+
+## Export
+
+The Settings page (`/settings`) can download the full contents of every
+project as JSON or Markdown — phases, tasks and dependencies, purchases,
+devices, services and their dependencies, backup policies, and
+architecture decisions. Neither export ever includes credentials or
+authentication data; see [ADR-0007](docs/decisions/ADR-0007-export-format.md).
+
 ## Recommended package structure
 
 ```text
