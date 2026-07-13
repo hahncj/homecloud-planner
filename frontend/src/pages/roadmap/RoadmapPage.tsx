@@ -9,7 +9,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ApiError } from '../../api/client'
 import {
   useCreatePhaseMutation,
@@ -17,7 +17,7 @@ import {
   useReorderPhasesMutation,
   useUpdatePhaseMutation,
 } from '../../api/phases'
-import { useCreateProjectMutation, useDeleteProjectMutation, useProjectsQuery, useUpdateProjectMutation } from '../../api/projects'
+import { useCreateProjectMutation, useDeleteProjectMutation, useUpdateProjectMutation } from '../../api/projects'
 import { useRoadmapQuery } from '../../api/roadmap'
 import type { Phase, Project, ProjectInput, Task, TaskFilters, TaskInput } from '../../api/roadmapTypes'
 import {
@@ -27,6 +27,7 @@ import {
   useRemoveDependencyMutation,
   useUpdateTaskMutation,
 } from '../../api/tasks'
+import { useSelectedProject } from '../shared/SelectedProjectContext'
 import { ConfirmDialog } from './ConfirmDialog'
 import { PhaseFormDialog } from './PhaseFormDialog'
 import { ProjectFormDialog } from './ProjectFormDialog'
@@ -57,8 +58,13 @@ type TaskDialogState = { mode: 'create'; phaseId: string } | { mode: 'edit'; tas
 type PhaseDialogState = { mode: 'create' } | { mode: 'edit'; phase: Phase } | undefined
 
 export function RoadmapPage() {
-  const { data: projects, isPending: projectsPending, isError: projectsError } = useProjectsQuery()
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined)
+  const {
+    projects,
+    isPending: projectsPending,
+    isError: projectsError,
+    selectedProjectId,
+    setSelectedProjectId,
+  } = useSelectedProject()
   const [view, setView] = useState<'board' | 'table'>('board')
   const [filters, setFilters] = useState<TaskFilters>({})
 
@@ -73,12 +79,6 @@ export function RoadmapPage() {
   const [deletingTask, setDeletingTask] = useState<Task | undefined>(undefined)
 
   const [formError, setFormError] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    if (!selectedProjectId && projects && projects.length > 0) {
-      setSelectedProjectId(projects[0]?.id)
-    }
-  }, [projects, selectedProjectId])
 
   const { data: roadmap, isPending: roadmapPending, isError: roadmapError } = useRoadmapQuery(selectedProjectId)
 

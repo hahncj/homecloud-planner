@@ -24,8 +24,8 @@
 
 ## Milestone 3 — Shopping and budget
 
-- [ ] Purchase items
-- [ ] Estimated and actual costs
-- [ ] Budget summary
-- [ ] Category totals
-- [ ] Warranty fields
+- [x] Purchase items (category, product/manufacturer/model, description, quantity, vendor, purchase URL, status, dates, receipt reference, related phase, notes; CRUD + status/category/phase filtering)
+- [x] Estimated and actual costs (positive quantity, non-negative prices; totals computed as unit price × quantity, never persisted)
+- [x] Budget summary (estimated vs. actual totals, committed spending preferring actual over estimate, remaining budget; cancelled items excluded — see [ADR-0003](docs/decisions/ADR-0003-budget-calculation-behavior.md))
+- [x] Category totals (grouped estimated/actual/committed per free-text category)
+- [x] Warranty fields (warranty expiration captured; expired/expiring-soon/active indicator computed client-side)

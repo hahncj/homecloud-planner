@@ -17,7 +17,7 @@ All endpoints are served under `/api/v1`. Errors follow RFC 9457
 | POST | `/projects` | Create a project. |
 | GET | `/projects/{projectId}` | Fetch one project. |
 | PUT | `/projects/{projectId}` | Replace a project's editable fields. |
-| DELETE | `/projects/{projectId}` | Delete a project. `409` if it still has phases. |
+| DELETE | `/projects/{projectId}` | Delete a project. `409` if it still has phases or purchase items. |
 | GET | `/projects/{projectId}/roadmap` | Combined payload: the project, its ordered phases (with progress), and its full task list (with computed `blocked` flags). Powers the Roadmap page in a single request. |
 
 Request body (`ProjectRequest`): `name` (required, ≤200 chars), `description`,
@@ -74,3 +74,52 @@ Projects and phases both return a `progress` object:
 Cancelled tasks are excluded from `taskCount` and `completedCount`.
 `progressPercentage` is `round(completedCount / taskCount * 100)`, or `0`
 when `taskCount` is `0`.
+
+## Purchase items
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/purchase-items` | List purchase items in the project. Query params: `status`, `category`, `phaseId` (all optional filters). |
+| POST | `/projects/{projectId}/purchase-items` | Create a purchase item. |
+| GET | `/purchase-items/{purchaseItemId}` | Fetch one purchase item. |
+| PUT | `/purchase-items/{purchaseItemId}` | Replace a purchase item's editable fields. |
+| DELETE | `/purchase-items/{purchaseItemId}` | Delete a purchase item. |
+
+Request body (`PurchaseItemRequest`): `phaseId` (optional, must belong to
+the same project), `category` (required, ≤100 chars, free text),
+`productName` (required, ≤200 chars), `manufacturer`, `model`,
+`description`, `quantity` (required, integer ≥1), `estimatedUnitPrice`,
+`actualUnitPrice` (≥0 or null), `vendor`, `purchaseUrl` (valid URL or
+null), `status` (`IDEA` \| `RESEARCHING` \| `PLANNED` \| `ORDERED` \|
+`RECEIVED` \| `INSTALLED` \| `CANCELLED`), `purchaseDate`, `deliveryDate`,
+`warrantyExpiration` (ISO dates or null), `receiptReference`, `notes`.
+
+Response (`PurchaseItemResponse`) additionally includes `estimatedTotal`
+and `actualTotal` (both computed as `unitPrice × quantity`, `null` when the
+corresponding unit price is `null`).
+
+## Budget
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/budget` | Computed budget summary for the project. |
+
+Response (`BudgetSummary`):
+
+```json
+{
+  "budget": "1000.00",
+  "estimatedTotal": "400.00",
+  "actualTotal": "90.00",
+  "committedSpending": "390.00",
+  "remainingBudget": "610.00",
+  "categories": [
+    { "category": "Networking", "itemCount": 2, "estimatedTotal": "100.00", "actualTotal": "90.00", "committedSpending": "90.00" }
+  ]
+}
+```
+
+Cancelled purchase items are excluded from every figure. `committedSpending`
+uses each item's actual cost when known, falling back to its estimate.
+`remainingBudget` is `null` when the project has no budget set. See
+[ADR-0003](decisions/ADR-0003-budget-calculation-behavior.md).

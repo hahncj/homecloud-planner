@@ -22,4 +22,4 @@ Build HomeCloud Planner as a maintainable modular monolith. Prefer simple, revie
 
 ## Current priority
 
-Milestones 1 and 2 are complete (foundation; projects/phases/tasks/dependencies/progress with the Roadmap UI). Next up is Milestone 3: shopping list and budget tracking.
+Milestones 1–3 are complete (foundation; projects/phases/tasks/dependencies/progress with the Roadmap UI; shopping list and budget tracking). Next up is Milestone 4: hardware inventory and service catalog.

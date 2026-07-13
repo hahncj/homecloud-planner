@@ -5,6 +5,7 @@ import com.homecloud.planner.common.NotFoundException;
 import com.homecloud.planner.phase.PhaseRepository;
 import com.homecloud.planner.roadmap.ProgressSummary;
 import com.homecloud.planner.roadmap.TaskProgressCalculator;
+import com.homecloud.planner.shopping.PurchaseItemRepository;
 import com.homecloud.planner.task.Task;
 import com.homecloud.planner.task.TaskDependency;
 import com.homecloud.planner.task.TaskDependencyRepository;
@@ -22,18 +23,21 @@ public class ProjectService {
     private final TaskRepository taskRepository;
     private final TaskDependencyRepository dependencyRepository;
     private final TaskProgressCalculator progressCalculator;
+    private final PurchaseItemRepository purchaseItemRepository;
 
     public ProjectService(
             ProjectRepository projectRepository,
             PhaseRepository phaseRepository,
             TaskRepository taskRepository,
             TaskDependencyRepository dependencyRepository,
-            TaskProgressCalculator progressCalculator) {
+            TaskProgressCalculator progressCalculator,
+            PurchaseItemRepository purchaseItemRepository) {
         this.projectRepository = projectRepository;
         this.phaseRepository = phaseRepository;
         this.taskRepository = taskRepository;
         this.dependencyRepository = dependencyRepository;
         this.progressCalculator = progressCalculator;
+        this.purchaseItemRepository = purchaseItemRepository;
     }
 
     @Transactional(readOnly = true)
@@ -79,6 +83,9 @@ public class ProjectService {
         Project project = requireProject(projectId);
         if (phaseRepository.existsByProjectId(projectId)) {
             throw new ConflictException("Project has phases; delete its phases before deleting the project.");
+        }
+        if (purchaseItemRepository.existsByProjectId(projectId)) {
+            throw new ConflictException("Project has purchase items; delete them before deleting the project.");
         }
         projectRepository.delete(project);
     }

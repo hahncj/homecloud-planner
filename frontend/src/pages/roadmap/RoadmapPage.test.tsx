@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { RoadmapPage } from './RoadmapPage'
 import type { Project, Roadmap } from '../../api/roadmapTypes'
+import { SelectedProjectProvider } from '../shared/SelectedProjectContext'
 
 const now = '2026-07-12T00:00:00Z'
 
@@ -92,7 +93,9 @@ function renderRoadmapPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
-      <RoadmapPage />
+      <SelectedProjectProvider>
+        <RoadmapPage />
+      </SelectedProjectProvider>
     </QueryClientProvider>,
   )
 }

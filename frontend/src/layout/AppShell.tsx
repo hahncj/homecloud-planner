@@ -33,6 +33,9 @@ export function AppShell({ children }: AppShellProps) {
             <NavLink to="/roadmap" style={navLinkStyle}>
               Roadmap
             </NavLink>
+            <NavLink to="/shopping" style={navLinkStyle}>
+              Shopping
+            </NavLink>
           </Stack>
         </Toolbar>
       </AppBar>

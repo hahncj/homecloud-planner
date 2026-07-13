@@ -19,11 +19,15 @@ Potential adapters include UniFi, Synology, Home Assistant, Prometheus, Docker, 
 
 ## Domain modules
 
-Backend packages follow package-by-feature (`com.homecloud.planner.<feature>`). As of Milestone 2:
+Backend packages follow package-by-feature (`com.homecloud.planner.<feature>`). As of Milestone 3:
 
 - `project` — projects (status, budget, start/target dates).
 - `phase` — ordered phases within a project (contiguous sequence, reorder, restrictive delete).
 - `task` — tasks within a phase and their dependencies.
 - `roadmap` — read-only aggregation across the three above: computed blocked state, computed progress summaries, and the combined `GET /projects/{id}/roadmap` payload the frontend uses to render the Roadmap page in one request. See [ADR-0002](decisions/ADR-0002-roadmap-domain-behavior.md) for the deletion, dependency, blocked-state, and progress rules.
+- `shopping` — purchase items (the shopping list) belonging to a project and optionally tagged to a phase.
+- `budget` — read-only aggregation over `shopping`: computed estimated/actual/committed totals, remaining budget, and category summaries via `GET /projects/{id}/budget`. See [ADR-0003](decisions/ADR-0003-budget-calculation-behavior.md).
 
-The frontend mirrors this with a `pages/roadmap/` module: `RoadmapPage` composes a project selector, summary cards, a phase board, a task table, filters, and create/edit dialogs backed by `api/projects.ts`, `api/phases.ts`, `api/tasks.ts`, and `api/roadmap.ts` (TanStack Query hooks over the REST API).
+Feature packages depend directly on each other's repositories and services where needed (e.g. `project` checks `phase` and `shopping` repositories before allowing a delete) — this is a modular monolith, not a set of isolated services, so that coupling is intentional rather than a boundary violation.
+
+The frontend mirrors this with `pages/roadmap/` and `pages/shopping/` modules, each composing a project selector, summary cards, list/table views, filters, and create/edit dialogs backed by TanStack Query hooks (`api/projects.ts`, `api/phases.ts`, `api/tasks.ts`, `api/roadmap.ts`, `api/purchaseItems.ts`, `api/budget.ts`). Which project is "current" is shared across pages via `pages/shared/SelectedProjectContext.tsx` (a small React Context) rather than each page defaulting independently — local per-page state was tried first and produced a real bug where navigating between pages silently switched the active project back to the first one in the list.
