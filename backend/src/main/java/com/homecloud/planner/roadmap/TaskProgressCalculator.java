@@ -1,14 +1,11 @@
 package com.homecloud.planner.roadmap;
 
+import com.homecloud.planner.common.DependencyGraphs;
 import com.homecloud.planner.task.Task;
 import com.homecloud.planner.task.TaskDependency;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
@@ -56,28 +53,11 @@ public class TaskProgressCalculator {
      * already present in the project.
      */
     public boolean wouldCreateCycle(UUID fromTaskId, UUID toTaskId, List<TaskDependency> existingProjectDependencies) {
-        Map<UUID, List<UUID>> adjacency = new HashMap<>();
-        for (TaskDependency dependency : existingProjectDependencies) {
-            adjacency.computeIfAbsent(dependency.getTask().getId(), key -> new java.util.ArrayList<>())
-                    .add(dependency.getDependsOnTask().getId());
-        }
-
-        Deque<UUID> stack = new ArrayDeque<>();
-        Set<UUID> visited = new HashSet<>();
-        stack.push(toTaskId);
-        while (!stack.isEmpty()) {
-            UUID current = stack.pop();
-            if (current.equals(fromTaskId)) {
-                return true;
-            }
-            if (!visited.add(current)) {
-                continue;
-            }
-            for (UUID next : adjacency.getOrDefault(current, List.of())) {
-                stack.push(next);
-            }
-        }
-        return false;
+        List<DependencyGraphs.Edge> edges = existingProjectDependencies.stream()
+                .map(dependency -> new DependencyGraphs.Edge(
+                        dependency.getTask().getId(), dependency.getDependsOnTask().getId()))
+                .toList();
+        return DependencyGraphs.wouldCreateCycle(fromTaskId, toTaskId, edges);
     }
 
     /**

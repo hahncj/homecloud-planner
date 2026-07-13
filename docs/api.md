@@ -123,3 +123,52 @@ Cancelled purchase items are excluded from every figure. `committedSpending`
 uses each item's actual cost when known, falling back to its estimate.
 `remainingBudget` is `null` when the project has no budget set. See
 [ADR-0003](decisions/ADR-0003-budget-calculation-behavior.md).
+
+## Devices
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/devices` | List devices in the project. Query params: `lifecycleStatus`, `role`, `location` (all optional filters). |
+| POST | `/projects/{projectId}/devices` | Create a device. |
+| GET | `/devices/{deviceId}` | Fetch one device. |
+| PUT | `/devices/{deviceId}` | Replace a device's editable fields. |
+| DELETE | `/devices/{deviceId}` | Delete a device. Any service that lists it as a host device has that reference cleared, not blocked. |
+
+Request body (`DeviceRequest`): `name` (required, ≤200 chars),
+`manufacturer`, `model`, `serialNumber`, `role`, `location`, `hostname`,
+`ipAddress` (valid IPv4/IPv6 or null), `macAddress` (valid MAC or null),
+`vlan` (integer 1–4094 or null), `operatingSystem`, `firmwareVersion`,
+`purchaseDate`, `warrantyExpiration`, `lifecycleStatus` (required —
+`PLANNED` \| `ACTIVE` \| `SPARE` \| `MAINTENANCE` \| `RETIRED` \|
+`DISPOSED`), `replacementTarget` (ISO date or null), `notes`. All network
+fields are optional; when present, they're validated.
+
+## Services
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/projects/{projectId}/services` | List services in the project. Query params: `status`, `runtimeType`, `sensitivity`, `externallyExposed` (all optional filters). |
+| POST | `/projects/{projectId}/services` | Create a service. |
+| GET | `/services/{serviceId}` | Fetch one service, including its direct `dependsOnServiceIds`. |
+| PUT | `/services/{serviceId}` | Replace a service's editable fields. |
+| DELETE | `/services/{serviceId}` | Delete a service. `409` if another service still depends on it — see [ADR-0004](decisions/ADR-0004-service-dependency-behavior.md). |
+
+Request body (`ManagedServiceRequest`): `hostDeviceId` (optional, must
+belong to the same project), `name` (required, ≤200 chars), `purpose`,
+`description`, `status` (required — `PLANNED` \| `INSTALLING` \|
+`CONFIGURING` \| `VALIDATING` \| `OPERATIONAL` \| `DEGRADED` \| `DISABLED`
+\| `RETIRED`), `runtimeType` (required — `DOCKER` \| `KUBERNETES` \|
+`VIRTUAL_MACHINE` \| `BARE_METAL` \| `MANAGED_CLOUD` \| `NAS_NATIVE` \|
+`OTHER`), `storageLocation`, `sensitivity` (required — `PUBLIC` \|
+`INTERNAL` \| `CONFIDENTIAL` \| `HIGHLY_SENSITIVE`), `externallyExposed`
+(boolean), `authenticationMethod`, `backupPolicy` (free text for now —
+Milestone 5 introduces a real `BackupPolicy` entity), `documentationUrl`,
+`repositoryUrl` (valid URLs or null), `notes`.
+
+## Service dependencies
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/services/{serviceId}/dependencies` | List a service's direct dependencies. |
+| POST | `/services/{serviceId}/dependencies` | Body: `{ "dependsOnServiceId": uuid }`. Rejects self-reference, duplicates, and cycles. |
+| DELETE | `/services/{serviceId}/dependencies/{dependsOnServiceId}` | Remove a dependency edge. |

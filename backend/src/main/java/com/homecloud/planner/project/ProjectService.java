@@ -2,9 +2,11 @@ package com.homecloud.planner.project;
 
 import com.homecloud.planner.common.ConflictException;
 import com.homecloud.planner.common.NotFoundException;
+import com.homecloud.planner.device.DeviceRepository;
 import com.homecloud.planner.phase.PhaseRepository;
 import com.homecloud.planner.roadmap.ProgressSummary;
 import com.homecloud.planner.roadmap.TaskProgressCalculator;
+import com.homecloud.planner.servicecatalog.ManagedServiceRepository;
 import com.homecloud.planner.shopping.PurchaseItemRepository;
 import com.homecloud.planner.task.Task;
 import com.homecloud.planner.task.TaskDependency;
@@ -24,6 +26,8 @@ public class ProjectService {
     private final TaskDependencyRepository dependencyRepository;
     private final TaskProgressCalculator progressCalculator;
     private final PurchaseItemRepository purchaseItemRepository;
+    private final DeviceRepository deviceRepository;
+    private final ManagedServiceRepository managedServiceRepository;
 
     public ProjectService(
             ProjectRepository projectRepository,
@@ -31,13 +35,17 @@ public class ProjectService {
             TaskRepository taskRepository,
             TaskDependencyRepository dependencyRepository,
             TaskProgressCalculator progressCalculator,
-            PurchaseItemRepository purchaseItemRepository) {
+            PurchaseItemRepository purchaseItemRepository,
+            DeviceRepository deviceRepository,
+            ManagedServiceRepository managedServiceRepository) {
         this.projectRepository = projectRepository;
         this.phaseRepository = phaseRepository;
         this.taskRepository = taskRepository;
         this.dependencyRepository = dependencyRepository;
         this.progressCalculator = progressCalculator;
         this.purchaseItemRepository = purchaseItemRepository;
+        this.deviceRepository = deviceRepository;
+        this.managedServiceRepository = managedServiceRepository;
     }
 
     @Transactional(readOnly = true)
@@ -86,6 +94,12 @@ public class ProjectService {
         }
         if (purchaseItemRepository.existsByProjectId(projectId)) {
             throw new ConflictException("Project has purchase items; delete them before deleting the project.");
+        }
+        if (deviceRepository.existsByProjectId(projectId)) {
+            throw new ConflictException("Project has devices; delete them before deleting the project.");
+        }
+        if (managedServiceRepository.existsByProjectId(projectId)) {
+            throw new ConflictException("Project has services; delete them before deleting the project.");
         }
         projectRepository.delete(project);
     }

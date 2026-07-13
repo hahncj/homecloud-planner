@@ -19,7 +19,7 @@ Potential adapters include UniFi, Synology, Home Assistant, Prometheus, Docker, 
 
 ## Domain modules
 
-Backend packages follow package-by-feature (`com.homecloud.planner.<feature>`). As of Milestone 3:
+Backend packages follow package-by-feature (`com.homecloud.planner.<feature>`). As of Milestone 4:
 
 - `project` — projects (status, budget, start/target dates).
 - `phase` — ordered phases within a project (contiguous sequence, reorder, restrictive delete).
@@ -27,7 +27,10 @@ Backend packages follow package-by-feature (`com.homecloud.planner.<feature>`). 
 - `roadmap` — read-only aggregation across the three above: computed blocked state, computed progress summaries, and the combined `GET /projects/{id}/roadmap` payload the frontend uses to render the Roadmap page in one request. See [ADR-0002](decisions/ADR-0002-roadmap-domain-behavior.md) for the deletion, dependency, blocked-state, and progress rules.
 - `shopping` — purchase items (the shopping list) belonging to a project and optionally tagged to a phase.
 - `budget` — read-only aggregation over `shopping`: computed estimated/actual/committed totals, remaining budget, and category summaries via `GET /projects/{id}/budget`. See [ADR-0003](decisions/ADR-0003-budget-calculation-behavior.md).
+- `device` — hardware inventory belonging to a project.
+- `servicecatalog` — `ManagedService` (the domain name for what the catalog calls "services"), its dependency graph, and dependency-cycle/deletion rules. See [ADR-0004](decisions/ADR-0004-service-dependency-behavior.md).
+- `common` — cross-feature building blocks with no domain of their own: `NotFoundException` / `ConflictException` / `InvalidRequestException` (mapped to RFC 9457 responses by `ApiExceptionHandler`), and `DependencyGraphs` (the shared cycle-detection algorithm used by both `task` and `servicecatalog`).
 
-Feature packages depend directly on each other's repositories and services where needed (e.g. `project` checks `phase` and `shopping` repositories before allowing a delete) — this is a modular monolith, not a set of isolated services, so that coupling is intentional rather than a boundary violation.
+Feature packages depend directly on each other's repositories and services where needed (e.g. `project` checks `phase`, `shopping`, `device`, and `servicecatalog` repositories before allowing a delete) — this is a modular monolith, not a set of isolated services, so that coupling is intentional rather than a boundary violation.
 
-The frontend mirrors this with `pages/roadmap/` and `pages/shopping/` modules, each composing a project selector, summary cards, list/table views, filters, and create/edit dialogs backed by TanStack Query hooks (`api/projects.ts`, `api/phases.ts`, `api/tasks.ts`, `api/roadmap.ts`, `api/purchaseItems.ts`, `api/budget.ts`). Which project is "current" is shared across pages via `pages/shared/SelectedProjectContext.tsx` (a small React Context) rather than each page defaulting independently — local per-page state was tried first and produced a real bug where navigating between pages silently switched the active project back to the first one in the list.
+The frontend mirrors this with `pages/roadmap/`, `pages/shopping/`, `pages/hardware/`, and `pages/services/` modules, each composing a project selector, summary cards, list/table/card views, filters, and create/edit dialogs backed by TanStack Query hooks (`api/projects.ts`, `api/phases.ts`, `api/tasks.ts`, `api/roadmap.ts`, `api/purchaseItems.ts`, `api/budget.ts`, `api/devices.ts`, `api/services.ts`). Which project is "current" is shared across pages via `pages/shared/SelectedProjectContext.tsx` (a small React Context) rather than each page defaulting independently — local per-page state was tried first and produced a real bug where navigating between pages silently switched the active project back to the first one in the list. The service catalog is the first module with its own routed detail page (`/services/:serviceId`) rather than a dialog, since its dependency graph needed more room than a modal comfortably gives.

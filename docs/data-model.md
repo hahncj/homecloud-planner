@@ -104,3 +104,70 @@ Indexes: `purchase_item(project_id)`, `purchase_item(phase_id)`,
 
 A project cannot be deleted while it has purchase items (same restrictive,
 non-cascading pattern as phases — see ADR-0002).
+
+## V4 — hardware and services (Milestone 4)
+
+### `device`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | PK, generated. |
+| `project_id` | `uuid` | FK → `project`, `ON DELETE RESTRICT`. |
+| `name` | `varchar(200)` | Required. |
+| `manufacturer`, `model`, `serial_number` | `varchar(200)` | Nullable. |
+| `role` | `varchar(100)` | Nullable; free text (e.g. "Router", "NAS"). |
+| `location` | `varchar(200)` | Nullable; free text. |
+| `hostname` | `varchar(255)` | Nullable. |
+| `ip_address` | `varchar(45)` | Nullable; validated as IPv4/IPv6 when present. |
+| `mac_address` | `varchar(17)` | Nullable; validated as a MAC address when present. |
+| `vlan` | `integer` | Nullable; `1`–`4094` when present. |
+| `operating_system`, `firmware_version` | `varchar` | Nullable. |
+| `purchase_date`, `warranty_expiration`, `replacement_target` | `date` | Nullable. |
+| `lifecycle_status` | `varchar(20)` | `PLANNED` \| `ACTIVE` \| `SPARE` \| `MAINTENANCE` \| `RETIRED` \| `DISPOSED`. |
+| `notes` | `text` | Nullable. |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+Indexes: `device(project_id)`, `device(lifecycle_status)`.
+
+### `managed_service`
+
+Domain name is `ManagedService` (not `Service`), to avoid confusion with
+infrastructure/platform "services".
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | PK, generated. |
+| `project_id` | `uuid` | FK → `project`, `ON DELETE RESTRICT`. |
+| `host_device_id` | `uuid` | FK → `device`, `ON DELETE SET NULL`. A soft reference — see [ADR-0004](decisions/ADR-0004-service-dependency-behavior.md). |
+| `name` | `varchar(200)` | Required. |
+| `purpose` | `varchar(500)` | Nullable. |
+| `description` | `text` | Nullable. |
+| `status` | `varchar(20)` | `PLANNED` \| `INSTALLING` \| `CONFIGURING` \| `VALIDATING` \| `OPERATIONAL` \| `DEGRADED` \| `DISABLED` \| `RETIRED`. |
+| `runtime_type` | `varchar(20)` | `DOCKER` \| `KUBERNETES` \| `VIRTUAL_MACHINE` \| `BARE_METAL` \| `MANAGED_CLOUD` \| `NAS_NATIVE` \| `OTHER`. |
+| `storage_location` | `varchar(200)` | Nullable. |
+| `sensitivity` | `varchar(20)` | `PUBLIC` \| `INTERNAL` \| `CONFIDENTIAL` \| `HIGHLY_SENSITIVE`. |
+| `externally_exposed` | `boolean` | Required, default `false`. |
+| `authentication_method` | `varchar(200)` | Nullable. |
+| `backup_policy` | `varchar(500)` | Nullable; free text for now — a real FK to a `BackupPolicy` entity is a Milestone 5 concern. |
+| `documentation_url`, `repository_url` | `varchar(2048)` | Nullable; validated as URLs when present. |
+| `notes` | `text` | Nullable. |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+Indexes: `managed_service(project_id)`, `managed_service(host_device_id)`,
+`managed_service(status)`.
+
+### `service_dependency`
+
+Same shape as `task_dependency` (V2): `id`, `service_id` (FK →
+`managed_service`, `ON DELETE CASCADE`), `depends_on_service_id` (FK →
+`managed_service`, `ON DELETE CASCADE`), `created_at`. Constraints:
+`service_id <> depends_on_service_id`; `UNIQUE (service_id,
+depends_on_service_id)`. Cycle detection and the "can't delete a service
+other services depend on" rule are application-layer — see
+[ADR-0004](decisions/ADR-0004-service-dependency-behavior.md).
+
+Indexes: `service_dependency(service_id)`,
+`service_dependency(depends_on_service_id)`.
+
+A project cannot be deleted while it has devices or services (same
+restrictive pattern as phases and purchase items).

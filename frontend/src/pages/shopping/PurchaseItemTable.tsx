@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import type { Phase } from '../../api/roadmapTypes'
 import type { PurchaseItem } from '../../api/shoppingTypes'
-import { warrantyColor, warrantyLabel, warrantyState } from './warrantyStatus'
+import { warrantyColor, warrantyLabel, warrantyState } from '../shared/warrantyStatus'
 
 interface PurchaseItemTableProps {
   items: PurchaseItem[]

@@ -29,3 +29,11 @@
 - [x] Budget summary (estimated vs. actual totals, committed spending preferring actual over estimate, remaining budget; cancelled items excluded — see [ADR-0003](docs/decisions/ADR-0003-budget-calculation-behavior.md))
 - [x] Category totals (grouped estimated/actual/committed per free-text category)
 - [x] Warranty fields (warranty expiration captured; expired/expiring-soon/active indicator computed client-side)
+
+## Milestone 4 — Hardware inventory and service catalog
+
+- [x] Device entity and API (name, manufacturer/model/serial, role, location, hostname, validated optional IP/MAC, VLAN, OS, firmware, purchase/warranty/replacement dates, lifecycle status, notes; CRUD + lifecycle/role/location filtering)
+- [x] Hardware inventory UI (device cards, table view, device detail view, filters, warranty and lifecycle indicators)
+- [x] ManagedService entity and API (purpose, description, status, runtime type, host device, storage location, sensitivity, external exposure, authentication method, backup policy text, documentation/repository URLs, notes; CRUD + status/runtime/sensitivity/exposure filtering)
+- [x] Service dependencies (self/duplicate/cycle rejection; deletion blocked while other services depend on it — see [ADR-0004](docs/decisions/ADR-0004-service-dependency-behavior.md))
+- [x] Service catalog UI (catalog grid, routed service detail page, dependency list, runtime/host info, sensitivity and exposure indicators)
