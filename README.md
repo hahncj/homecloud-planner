@@ -43,6 +43,12 @@ and the frontend. `docker compose` and Vite (`envDir: '..'` in
 `frontend/vite.config.ts`) both load this same file, so one `.env` covers the
 full stack and local development.
 
+**Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` before first startup** — this is
+what creates the single administrator account (see
+[Authentication](#authentication) below). If left unset, the app still
+starts, but logging in won't work until they're set and the backend is
+restarted.
+
 ## Running the complete stack with Docker Compose
 
 Builds and runs PostgreSQL, the backend, and the frontend as containers.
@@ -116,6 +122,63 @@ Stop PostgreSQL when finished:
 ```bash
 docker compose down               # or: make db-down
 ```
+
+## Authentication
+
+There is a single local administrator account, created once at first
+startup from the `ADMIN_USERNAME`/`ADMIN_PASSWORD` environment variables —
+there is no registration, password reset, or default credential (see
+[ADR-0008](docs/decisions/ADR-0008-authentication-approach.md)). Sign in at
+`/login`; every other route requires an authenticated session. Full
+operational detail — cookies, CSRF, CORS, actuator exposure, container
+users, and this app's local-network-only deployment model — is in
+[`docs/security.md`](docs/security.md).
+
+## Development-only seed data
+
+The backend can populate a representative "Personal Hybrid Cloud" project
+(phases, tasks with dependencies, shopping items, devices, services,
+backup policies, and architecture decisions, drawn from the sibling
+`personal-cloud-docs` repository) with one request. The seed endpoint
+only exists when the `dev` Spring profile is active, so it is never
+reachable in a default or production deployment — see
+[ADR-0006](docs/decisions/ADR-0006-seed-data-strategy.md).
+
+```bash
+cd backend
+set -a && source ../.env && set +a
+SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
+```
+
+```bash
+curl -X POST http://localhost:8080/api/v1/dev/seed
+```
+
+Calling it again deletes and recreates the same project from scratch, so
+it's safe to re-run at any time during local development.
+
+## Export
+
+The Settings page (`/settings`) can download the full contents of every
+project as JSON or Markdown — phases, tasks and dependencies, purchases,
+devices, services and their dependencies, backup policies, and
+architecture decisions. Neither export ever includes credentials or
+authentication data; see [ADR-0007](docs/decisions/ADR-0007-export-format.md).
+
+## Backing up your data
+
+The Planner's own PostgreSQL database is the sole system of record for
+everything you enter — it isn't backed up automatically. See
+[`docs/backup-restore.md`](docs/backup-restore.md) for `pg_dump`/`pg_restore`
+procedures.
+
+## End-to-end tests
+
+A Playwright suite drives the real app in a browser against an
+already-running stack, covering login, project/phase/task/dependency
+creation, the blocked-task indicator, purchases, devices, services, backup
+policies, the dashboard, and export. See
+[`frontend/e2e/README.md`](frontend/e2e/README.md) for how to run it.
 
 ## Recommended package structure
 

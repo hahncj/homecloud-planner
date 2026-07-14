@@ -13,5 +13,14 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    // e2e/ holds Playwright specs (run via `npm run e2e`), not Vitest ones —
+    // without this, Vitest's default glob also matches *.spec.ts there.
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{vite,vitest}.config.*',
+      '**/e2e/**',
+    ],
   },
 })

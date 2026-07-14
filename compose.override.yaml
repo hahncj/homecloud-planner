@@ -1,0 +1,8 @@
+# Automatically merged by `docker compose` (no -f flag needed) for local
+# development. Publishes the Postgres port to the host so you can connect
+# with a local SQL client. Do not carry this file into a production
+# deployment — see docs/security.md.
+services:
+  postgres:
+    ports:
+      - "5432:5432"

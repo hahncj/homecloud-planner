@@ -22,9 +22,24 @@ app:
 
 server:
   port: 8080
+  tomcat:
+    max-http-form-post-size: 2MB
+    max-swallow-size: 2MB
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+        # Not forced true: a typical deployment of this app is plain HTTP on a
+        # local network (see docs/security.md). Set SESSION_COOKIE_SECURE=true
+        # when serving over HTTPS.
+        secure: ${SESSION_COOKIE_SECURE:false}
 
 management:
   endpoints:
     web:
       exposure:
         include: health
+  endpoint:
+    health:
+      show-details: never

@@ -22,4 +22,4 @@ Build HomeCloud Planner as a maintainable modular monolith. Prefer simple, revie
 
 ## Current priority
 
-Complete Milestone 1: a working vertical slice with PostgreSQL, Spring Boot, React, Docker Compose, CI, and a health endpoint.
+Milestones 1–6 are complete (foundation; projects/phases/tasks/dependencies/progress with the Roadmap UI; shopping list and budget tracking; hardware inventory and service catalog; backup matrix and architecture decisions; dashboard, seed data, and export). Next up is Milestone 7: authentication, testing, and deployment hardening.

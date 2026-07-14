@@ -1,0 +1,14 @@
+# Project Roadmap Status
+
+Tracks where HomeCloud Planner itself stands against the milestones in
+`BUILD_PLAN.md`. See `TASKS.md` for the task-level checklist.
+
+| Milestone | Status | Notes |
+|---|---|---|
+| 1. Repository and development environment | Done | PostgreSQL, Spring Boot, React, Flyway, Docker Compose, CI, health endpoint. |
+| 2. Projects, phases, and tasks | Done | Projects, ordered phases, tasks, dependencies (cycle-safe), computed blocked state, computed progress, Roadmap UI (board/table, filters). See [ADR-0002](decisions/ADR-0002-roadmap-domain-behavior.md). |
+| 3. Shopping and budget | Done | Purchase items, computed totals, budget summary (committed spending, remaining budget), category summaries, warranty indicators. See [ADR-0003](decisions/ADR-0003-budget-calculation-behavior.md). |
+| 4. Hardware inventory and service catalog | Done | Device inventory (cards/table/detail, validated IP/MAC, warranty and lifecycle indicators); ManagedService catalog with dependency graph, cycle detection, and delete-while-depended-upon protection. See [ADR-0004](decisions/ADR-0004-service-dependency-behavior.md). |
+| 5. Backup matrix and architecture decisions | Done | Backup policies with computed coverage/warnings (missing local/off-site/encryption, verification overdue) and an explicit RAID/snapshot disclaimer; ADR-style architecture decisions with related devices/services. See [ADR-0005](decisions/ADR-0005-backup-coverage-rules.md). |
+| 6. Dashboard, seed data, and export | Done | Computed dashboard (progress, budget, blocked/upcoming/recent tasks, status counts, backup warnings, warranty expirations, deterministic recommended actions); repeatable dev-only seed of a representative "Personal Hybrid Cloud" project; JSON/Markdown export with Settings-page download controls. See [ADR-0006](decisions/ADR-0006-seed-data-strategy.md) and [ADR-0007](decisions/ADR-0007-export-format.md). |
+| 7. Authentication, testing, and deployment hardening | Done | Single local admin account (session cookies, BCrypt, no default credentials), double-submit CSRF, RFC 9457 401/403, security/actuator/Compose hardening, Playwright e2e suite, documented future Authentik/OIDC path. See [ADR-0008](decisions/ADR-0008-authentication-approach.md) and `docs/security.md`. |
