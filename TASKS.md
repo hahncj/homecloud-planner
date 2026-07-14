@@ -52,3 +52,16 @@
 - [x] Seed data (repeatable `POST /dev/seed`, content drawn from the sibling personal-cloud-docs repo, only registered under the `dev` Spring profile — see [ADR-0006](docs/decisions/ADR-0006-seed-data-strategy.md))
 - [x] JSON and Markdown export (`GET /export/json`, `GET /export/markdown`, reusing existing response DTOs so credentials can never leak through — see [ADR-0007](docs/decisions/ADR-0007-export-format.md))
 - [x] Settings page with export download controls
+
+## Milestone 7 — Authentication, testing, and deployment hardening
+
+- [x] Single local admin account, BCrypt-hashed, created only from `ADMIN_USERNAME`/`ADMIN_PASSWORD` at first startup, no default credentials anywhere — see [ADR-0008](docs/decisions/ADR-0008-authentication-approach.md)
+- [x] Session-cookie login/logout/session endpoints (`POST /auth/login`, `POST /auth/logout`, `GET /auth/session`), RFC 9457 problem details for 401/403
+- [x] Double-submit cookie CSRF protection (`XSRF-TOKEN` cookie, `X-XSRF-TOKEN` header), `CorsConfigurationSource` shared between Spring MVC and Spring Security with `allowCredentials(true)`
+- [x] Security hardening: `X-Frame-Options: DENY`, request body size limits, actuator restricted to `health` with no detail, Postgres port not published in the base Compose file, Docker container non-root review — see `docs/security.md`
+- [x] Backend test suite retrofitted for authenticated/CSRF-protected requests; dedicated `AuthenticationIT` covering login success/failure, logout, session, 401s, and CSRF rejection
+- [x] Frontend `AuthContext`, login page, protected routes, logout, `credentials: 'include'` + CSRF header on every mutating request, global 401 handling
+- [x] Docker/Compose hardening: `compose.override.yaml` for local-only Postgres port publishing, `restart: unless-stopped`, admin credentials passed through Compose
+- [x] CI: Docker image build validation for both backend and frontend images
+- [x] Playwright e2e suite covering login, create project, add phase, add task, add dependency, confirm blocked behavior, add purchase, add device, add service, add backup policy, view dashboard, export project — see `frontend/e2e/README.md`
+- [x] Documentation: `docs/security.md` (deployment model, cookies/CSRF, CORS, actuator, container users, Postgres exposure), `docs/backup-restore.md` (Planner's own database), future Authentik/OIDC path documented in ADR-0008

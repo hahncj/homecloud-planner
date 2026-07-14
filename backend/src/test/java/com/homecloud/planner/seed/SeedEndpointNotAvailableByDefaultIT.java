@@ -3,6 +3,7 @@ package com.homecloud.planner.seed;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.homecloud.planner.SecurityTestConfiguration;
 import com.homecloud.planner.TestcontainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * for any real deployment that doesn't explicitly opt in), the seed
  * controller bean does not exist at all — see ADR-0006.
  */
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, SecurityTestConfiguration.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 class SeedEndpointNotAvailableByDefaultIT {

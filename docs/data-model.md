@@ -223,3 +223,20 @@ directionality and cycle constraints).
 
 A project cannot be deleted while it has backup policies or architecture
 decisions (same restrictive pattern as the rest of the domain).
+
+## V6 — admin account (Milestone 7)
+
+### `admin_user`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | PK, generated. |
+| `username` | `varchar(100)` | Required, unique. |
+| `password_hash` | `varchar(200)` | Required; BCrypt hash, never the plaintext password. |
+| `created_at`, `updated_at` | `timestamptz` | |
+
+No default row is ever inserted by the migration — the single account is
+created at application startup from `ADMIN_USERNAME`/`ADMIN_PASSWORD` by
+`AdminAccountInitializer`, or not at all if either is unset. Not linked to
+any other table: there is no per-user ownership of projects or other
+domain data. See [ADR-0008](decisions/ADR-0008-authentication-approach.md).

@@ -1,11 +1,13 @@
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 
 interface AppShellProps {
   children: ReactNode
@@ -19,6 +21,8 @@ const navLinkStyle = ({ isActive }: { isActive: boolean }) => ({
 })
 
 export function AppShell({ children }: AppShellProps) {
+  const { user, logout } = useAuth()
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static">
@@ -26,7 +30,7 @@ export function AppShell({ children }: AppShellProps) {
           <Typography variant="h6" component="h1">
             HomeCloud Planner
           </Typography>
-          <Stack direction="row" spacing={2} component="nav" sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+          <Stack direction="row" spacing={2} component="nav" sx={{ flexWrap: 'wrap', rowGap: 1, flexGrow: 1 }}>
             <NavLink to="/" end style={navLinkStyle}>
               Dashboard
             </NavLink>
@@ -51,6 +55,16 @@ export function AppShell({ children }: AppShellProps) {
             <NavLink to="/settings" style={navLinkStyle}>
               Settings
             </NavLink>
+          </Stack>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            {user && (
+              <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                {user.username}
+              </Typography>
+            )}
+            <Button color="inherit" size="small" onClick={() => void logout()}>
+              Log out
+            </Button>
           </Stack>
         </Toolbar>
       </AppBar>

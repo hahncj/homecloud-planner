@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.homecloud.planner.SecurityTestConfiguration;
 import com.homecloud.planner.TestcontainersConfiguration;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, SecurityTestConfiguration.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 class HardwareServiceCatalogIT {

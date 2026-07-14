@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.homecloud.planner.SecurityTestConfiguration;
 import com.homecloud.planner.TestcontainersConfiguration;
 import com.homecloud.planner.backup.BackupPolicyRepository;
 import com.homecloud.planner.decision.ArchitectureDecisionRepository;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, SecurityTestConfiguration.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")

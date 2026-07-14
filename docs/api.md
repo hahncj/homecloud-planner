@@ -3,11 +3,26 @@
 All endpoints are served under `/api/v1`. Errors follow RFC 9457
 (`application/problem+json`) with `status`, `title`, and `detail`.
 
+## Authentication
+
+Every endpoint below requires an authenticated session (session cookie),
+except `GET /health`, `GET /actuator/health`, and `POST /auth/login` — see
+[ADR-0008](decisions/ADR-0008-authentication-approach.md) and
+`docs/security.md`. Mutating requests (`POST`/`PUT`/`DELETE`) additionally
+require the `X-XSRF-TOKEN` header to match the `XSRF-TOKEN` cookie value
+(double-submit CSRF protection).
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/auth/login` | Body: `{ username, password }`. Establishes a session cookie on success; `401` problem detail on invalid credentials. |
+| POST | `/auth/logout` | Invalidates the current session. `204` on success. |
+| GET | `/auth/session` | Returns `{ username }` for the current session, or `401` if unauthenticated. |
+
 ## Health
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/health` | Liveness check; returns `{ status, timestamp }`. |
+| GET | `/health` | Liveness check; returns `{ status, timestamp }`. Publicly accessible (no session required). |
 
 ## Projects
 

@@ -1,7 +1,7 @@
 import { API_BASE_URL, ApiError } from './client'
 
 async function downloadFrom(path: string, fallbackFilename: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}${path}`)
+  const response = await fetch(`${API_BASE_URL}${path}`, { credentials: 'include' })
   if (!response.ok) {
     throw new ApiError(`Export request to ${path} failed with status ${response.status}`, response.status)
   }
